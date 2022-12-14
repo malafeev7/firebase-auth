@@ -1,22 +1,30 @@
-import React from 'react'
-import { Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { useAuth } from 'hooks/use-auth';
-import { removeUser } from 'store/slices/userSlice';
+import { React } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "hooks/useAuth";
 
 const HomePage = () => {
-  const dispatch = useDispatch();
-  const {isAuth, email} = useAuth();
-  return isAuth ? (
+  const { pending, isSignedIn, user, getAuth } = useAuth();
+
+  const logOut = () => {
+    getAuth().signOut();
+  };
+
+  if (pending) {
+    return <h1>waiting...</h1>;
+  }
+  if (!isSignedIn) {
+    return (
+      <div>
+        <Navigate to="/login" />
+      </div>
+    );
+  }
+  return (
     <div>
-      <h1>Welcome</h1>
-      <button
-      onClick={()=> dispatch(removeUser())}
-      >Log out from {email}</button>
+      <h1>Welcome {user.email}</h1>
+      <button onClick={() => logOut()}>Log out from</button>
     </div>
-  ) : (
-    <Link to='/login'>log</Link>
-  )
-}
+  );
+};
 
 export default HomePage;

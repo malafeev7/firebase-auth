@@ -1,34 +1,22 @@
 import React from "react";
 import Form from "./Form";
-import {useNavigate} from 'react-router-dom'
-import { useDispatch } from "react-redux";
-import { setUser } from "store/slices/userSlice";
+import { useNavigate } from "react-router-dom";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const Login = () => {
-  const dispatch = useDispatch();
+  const auth = getAuth();
   const navigate = useNavigate();
-
-
-  const handleLogin = (email, password) => {
-    const auth = getAuth();
-    signInWithEmailAndPassword(auth, email, password)
-    .then(({user})=> {
-        console.log(user);
-        dispatch(setUser({
-            email: user.email,
-            id: user.id,
-            token: user.accessToken,
-        }))
-        navigate('/');
-    })
-    .catch(console.error)
+  const handleLogin = async (email, password) => {
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      console.log(result);
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+      alert(error);
+    }
   };
-  return (
-    <Form title='sign in'
-    handleClick={handleLogin}
-    />
-  )
+  return <Form title="sign in" handleClick={handleLogin} />;
 };
 
 export default Login;
