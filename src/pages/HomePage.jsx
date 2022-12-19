@@ -1,6 +1,7 @@
 import { React } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "hooks/useAuth";
+import ListItems from "components/ListItems";
 
 const HomePage = () => {
   const { pending, isSignedIn, user, getAuth } = useAuth();
@@ -23,6 +24,7 @@ const HomePage = () => {
     <div>
       <h1>Welcome {user.email}</h1>
       <button onClick={() => logOut()}>Log out from</button>
+      <ListItems />
     </div>
   );
 };
