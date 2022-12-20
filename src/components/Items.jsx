@@ -24,7 +24,7 @@ const Items = (props) => {
     <div>
         <Title>{props.title}</Title>
         <Descriptions>{props.descriptions}</Descriptions>
-        <Button onClick={(() => props.writeToDatabase())}>Добавить книгу</Button>
+        <Button onClick={(() => props.writeToDatabase(props.id))}>Добавить книгу</Button>
     </div>
   )
 }

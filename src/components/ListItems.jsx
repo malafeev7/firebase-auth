@@ -26,12 +26,13 @@ const ListItems = () => {
     });
 }, []);
 
-const writeToDatabase = (obj) => {
+const writeToDatabase = (bookId) => {
   const dbRef = getDatabase();
   const uidd = uid();
   const auth = getAuth();
+  const bookIndex = books.findIndex((book) => book.id === bookId);
   set(ref(dbRef, `/users/${auth.currentUser.uid}`), {
-    book: books,
+    book: books[bookIndex],
     uidd: uidd
   });
 };
