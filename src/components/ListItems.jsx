@@ -1,52 +1,78 @@
-import React from 'react'
-import Items from './Items'
-import { getDatabase, ref, child, get, set } from "firebase/database";
-import { uid } from 'uid';
+import React from "react";
+import Items from "./Items";
+import Cart from "./Cart";
+import { getDatabase, ref, child, get, push, update, remove, set } from "firebase/database";
 import { getAuth } from "firebase/auth";
-
-
+import { uid } from "uid";
 
 const ListItems = () => {
-    const [books, setBooks] = React.useState([]);
-    const [cartItems, setCartItems] = React.useState([]);
+  const [books, setBooks] = React.useState([]);
+  const [cartItems, setCartItems] = React.useState([]);
 
-    React.useEffect(() => {
-      const dbRef = ref(getDatabase());
-    get(child(dbRef, 'books')).then((snapshot) => {
-        const snapshotValues = snapshot.val();
-      if (snapshot.exists()) {
-        Object.values(snapshotValues).map((book) => 
-            setBooks((books) => [...books, book])
-        )
-      } else {
-        console.log("No data available");
-      }
-    }).catch((error) => {
-      console.error(error);
-    });
-}, []);
-
-const writeToDatabase = (obj) => {
-  const dbRef = getDatabase();
-  const uidd = uid();
   const auth = getAuth();
-  set(ref(dbRef, `/users/${auth.currentUser.uid}`), {
-    book: books,
-    uidd: uidd
-  });
-};
-    
-    return (
-        <div>
-          {books.map((book, index) => (
-            <Items 
-             {...book}
-              key={index}
-              writeToDatabase={writeToDatabase}
-               />
-          ))}
-        </div>
-      );
-    }
+  const dbRef = ref(getDatabase());
+  const dbRe = getDatabase();
 
-export default ListItems
+
+  React.useEffect(() => {
+    get(child(dbRef, "books"))
+      .then((snapshot) => {
+        const snapshotValues = snapshot.val();
+        if (snapshot.exists()) {
+          Object.values(snapshotValues).map((book) =>
+            setBooks((books) => [...books, book])
+          );
+        } else {
+          console.log("No data available");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
+  React.useEffect(() => {
+    get(child(dbRef, `/users/${auth.currentUser.uid}/books`))
+      .then((snapshot) => {
+        const snapshotValues = snapshot.val();
+        if (snapshot.exists()) {
+          Object.values(snapshotValues).map((book) =>
+            setCartItems((books) => [...books, book])
+          );
+        } else {
+          console.log("No data available");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
+  const writeToDatabase = (bookId) => {
+    push(ref(dbRe, `/users/${auth.currentUser.uid}/books`), bookId);
+  };
+
+    const deleteToDatabase = (bookId) => {
+      // remove(ref(dbRe, `/users/${auth.currentUser.uid}/books`), bookId );
+      console.log(bookId)
+      setCartItems((prev) => prev.filter((item) => item.id !== bookId));
+      console.log(cartItems);
+    };
+
+  const favorites = cartItems.map((id) => books.find((book) => book.id === id));
+
+  return (
+    <div>
+      {books.map((book, index) => (
+        <Items {...book} key={index} writeToDatabase={writeToDatabase} />
+      ))}
+      <div>
+        {favorites.map((book, index) => (
+          <Cart {...book} key={index} deleteToDatabase={deleteToDatabase}  />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default ListItems;
