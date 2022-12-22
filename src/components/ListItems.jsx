@@ -53,10 +53,25 @@ const ListItems = () => {
   };
 
     const deleteToDatabase = (bookId) => {
+      get(child(dbRef, `/users/${auth.currentUser.uid}/books`))
+      .then((snapshot) => {
+        const snapshotValues = snapshot.val();
+        if (snapshot.exists()) {
+          for (let [key, value] of Object.entries(snapshotValues)) {
+           if (value === bookId) {
+            remove(ref(dbRe, `/users/${auth.currentUser.uid}/books/${key}`));
+           }
+          }
+          } else {
+          console.log("No data available"); 
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
       // remove(ref(dbRe, `/users/${auth.currentUser.uid}/books`), bookId );
-      console.log(bookId)
+
       setCartItems((prev) => prev.filter((item) => item.id !== bookId));
-      console.log(cartItems);
     };
 
   const favorites = cartItems.map((id) => books.find((book) => book.id === id));
